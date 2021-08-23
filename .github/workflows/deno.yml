@@ -1,0 +1,30 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+name: React CI
+
+on:
+  push:
+    branches:
+      - "master"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [15.x]
+    
+    steps:
+      - uses: actions/checkout@v1
+      - run: npm install
+      - run: npm run build
+      - run: npm test
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+      - run: |
+          aws s3 sync . s3://reacttask2
